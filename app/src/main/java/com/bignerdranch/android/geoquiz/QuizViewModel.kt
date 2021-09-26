@@ -13,6 +13,8 @@ class QuizViewModel : ViewModel() {
 
     var done = false
     var score = 0
+    var currentIndex = 0
+    var isCheater = false
 
     private val questionBank = listOf(
         Question(R.string.question_australia, true, false),
@@ -24,7 +26,6 @@ class QuizViewModel : ViewModel() {
     )
     val amountOfQuestions = questionBank.size
 
-    var currentIndex = 0
 
     val currentQuestionAnswer: Boolean
         get() = questionBank[currentIndex].answer
