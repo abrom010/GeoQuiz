@@ -14,15 +14,14 @@ class QuizViewModel : ViewModel() {
     var done = false
     var score = 0
     var currentIndex = 0
-    var isCheater = false
 
     private val questionBank = listOf(
-        Question(R.string.question_australia, true, false),
-        Question(R.string.question_oceans, true, false),
-        Question(R.string.question_mideast, false, false),
-        Question(R.string.question_africa, false, false),
-        Question(R.string.question_americas, true, false),
-        Question(R.string.question_asia, true, false)
+        Question(R.string.question_australia, true, false, false),
+        Question(R.string.question_oceans, true, false, false),
+        Question(R.string.question_mideast, false, false, false),
+        Question(R.string.question_africa, false, false, false),
+        Question(R.string.question_americas, true, false, false),
+        Question(R.string.question_asia, true, false, false)
     )
     val amountOfQuestions = questionBank.size
 
@@ -36,6 +35,10 @@ class QuizViewModel : ViewModel() {
     var currentQuestionAnswered: Boolean
         get() = questionBank[currentIndex].answered
         set(answered) { questionBank[currentIndex].answered = answered }
+
+    var currentQuestionCheated: Boolean
+        get() = questionBank[currentIndex].cheated
+        set(cheated) { questionBank[currentIndex].cheated = cheated }
 
     fun moveToNext() {
         currentIndex = (currentIndex + 1) % questionBank.size

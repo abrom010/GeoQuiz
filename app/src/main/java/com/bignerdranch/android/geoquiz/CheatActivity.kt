@@ -8,6 +8,8 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Button
 import android.widget.TextView
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProviders
 
 const val EXTRA_ANSWER_SHOWN =
     "com.bignerdranch.android.geoquiz.anser_shown"
@@ -22,6 +24,11 @@ class CheatActivity : AppCompatActivity() {
 
     private var answerIsTrue = false
 
+
+    private val cheatViewModel: CheatViewModel by lazy {
+        ViewModelProviders.of(this).get(CheatViewModel::class.java)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_cheat)
@@ -35,8 +42,10 @@ class CheatActivity : AppCompatActivity() {
                 else -> R.string.false_button
             }
             answerTextView.setText(answerText)
+            cheatViewModel.answerIsShown = true
             setAnswerShownResult(true)
         }
+        setAnswerShownResult(cheatViewModel.answerIsShown)
     }
 
     private fun setAnswerShownResult(isAnswerShown: Boolean) {
