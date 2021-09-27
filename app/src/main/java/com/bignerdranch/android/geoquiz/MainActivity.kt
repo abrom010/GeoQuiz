@@ -1,7 +1,10 @@
 package com.bignerdranch.android.geoquiz
 
+import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.ActivityOptions
 import android.content.Intent
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -25,11 +28,14 @@ class MainActivity : AppCompatActivity() {
     private lateinit var questionTextView: TextView
     private lateinit var backButton: ImageButton
     private lateinit var cheatButton: Button
+    private lateinit var apiText: TextView
+    private lateinit var cheatsText: TextView
 
     private val quizViewModel: QuizViewModel by lazy {
         ViewModelProviders.of(this).get(QuizViewModel::class.java)
     }
 
+    @SuppressLint("RestrictedApi")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -45,6 +51,11 @@ class MainActivity : AppCompatActivity() {
         questionTextView = findViewById(R.id.question_text_view)
         backButton = findViewById(R.id.back_button)
         cheatButton = findViewById(R.id.cheat_button)
+        apiText = findViewById(R.id.api_text_view)
+        cheatsText = findViewById(R.id.cheats_text_view)
+
+        apiText.setText(getString(R.string.api_text, Build.VERSION.SDK_INT))
+        cheatsText.setText(getString(R.string.cheats_text, quizViewModel.cheatsLeft))
 
         trueButton.setOnClickListener { view: View ->
             if (!quizViewModel.checkIfDone()) {
@@ -92,10 +103,16 @@ class MainActivity : AppCompatActivity() {
         }
 
         cheatButton.setOnClickListener { view: View ->
+            if (quizViewModel.cheatsLeft < 1) return@setOnClickListener
             //val intent = Intent(this, CheatActivity::class.java)
             val answerIsTrue = quizViewModel.currentQuestionAnswer
             val intent = CheatActivity.newIntent(this@MainActivity, answerIsTrue)
-            startActivityForResult(intent, REQUEST_CODE_CHEAT)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                val options = ActivityOptions.makeClipRevealAnimation(view, 0, 0, view.width, view.height)
+                startActivityForResult(intent, REQUEST_CODE_CHEAT, options.toBundle())
+            } else {
+                startActivityForResult(intent, REQUEST_CODE_CHEAT)
+            }
         }
 
         updateQuestion()
@@ -109,8 +126,12 @@ class MainActivity : AppCompatActivity() {
         }
 
         if (requestCode == REQUEST_CODE_CHEAT) {
-            quizViewModel.currentQuestionCheated =
-                data?.getBooleanExtra(EXTRA_ANSWER_SHOWN, false) ?: false
+            val answerShown: Boolean = data?.getBooleanExtra(EXTRA_ANSWER_SHOWN, false) ?: false
+
+            quizViewModel.currentQuestionCheated = answerShown
+
+            quizViewModel.cheatsLeft =
+                if (answerShown) --quizViewModel.cheatsLeft else quizViewModel.cheatsLeft
         }
     }
 
@@ -122,6 +143,7 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         Log.d(TAG, "onResume() called")
+        cheatsText.setText(getString(R.string.cheats_text, quizViewModel.cheatsLeft))
     }
 
     override fun onPause() {

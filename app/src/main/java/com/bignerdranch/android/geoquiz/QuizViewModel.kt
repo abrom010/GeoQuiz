@@ -14,6 +14,7 @@ class QuizViewModel : ViewModel() {
     var done = false
     var score = 0
     var currentIndex = 0
+    var cheatsLeft = 3
 
     private val questionBank = listOf(
         Question(R.string.question_australia, true, false, false),
